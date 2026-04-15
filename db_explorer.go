@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 	"strings"
 )
 
@@ -50,7 +51,9 @@ func (h *Handler) ListTables(w http.ResponseWriter, r *http.Request) {
 		tables = append(tables, t)
 	}
 	response := map[string]interface{}{
-		"response": tables,
+		"response": map[string]interface{}{
+			"tables": tables,
+		},
 	}
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(response); err != nil {
@@ -63,6 +66,25 @@ func (h *Handler) GetTableRecords(w http.ResponseWriter, r *http.Request, tableN
 	// Get parameters
 	offsetStr:=r.FormValue("offset")
 	limitStr:=r.FormValue("limit")
+	var err error
+	limitInt:=0
+	if limitStr !=""{
+		limitInt, err= strconv.Atoi(limitStr)
+		if err != nil || limitInt <0 {
+			http.Error(w, "Parameter 'limit' must be a non-negative integer", http.StatusBadRequest)
+			return
+		}
+	}
+	offsetInt:=0
+	if offsetStr !=""{
+		offsetInt, err= strconv.Atoi(offsetStr)
+		if err != nil || offsetInt < 0 {
+			http.Error(w, "Parameter 'offset' must be a non-negative integer", http.StatusBadRequest)
+			return
+		}
+	}
+	row:=h.DB.QueryRow("SELECT 	* FROM ")
+
 }
 
 // тут вы пишете код
