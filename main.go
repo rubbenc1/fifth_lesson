@@ -24,7 +24,6 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-
 	handler, err := NewDbExplorer(db)
 	if err != nil {
 		panic(err)
