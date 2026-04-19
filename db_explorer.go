@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"sort"
 	"net/http"
 	"strconv"
 	"strings"
@@ -72,24 +73,28 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		default:
 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		}
+	default:
+        http.NotFound(w, r)
 	}
+
 }
 
 func (h *Handler) ListTables(w http.ResponseWriter, r *http.Request) {
-	tables := make([]string, 0, len(h.Schema))
-	for t := range h.Schema {
-		tables = append(tables, t)
-	}
-	response := map[string]interface{}{
-		"response": map[string]interface{}{
-			"tables": tables,
-		},
-	}
-	w.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(w).Encode(response); err != nil {
-		http.Error(w, "Failed to encode data", http.StatusInternalServerError)
-		return
-	}
+    tables := make([]string, 0, len(h.Schema))
+    for t := range h.Schema {
+        tables = append(tables, t)
+    }
+
+    sort.Strings(tables)
+
+    response := map[string]interface{}{
+        "response": map[string]interface{}{
+            "tables": tables,
+        },
+    }
+    
+    w.Header().Set("Content-Type", "application/json")
+    json.NewEncoder(w).Encode(response)
 }
 
 func (h *Handler) GetTableRecords(w http.ResponseWriter, r *http.Request, tableName string) {
